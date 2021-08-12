@@ -33,7 +33,17 @@ Using the `Export-CSV` cmdlet, the table can be saved and post-processed in Exce
             Export-Csv 'D:\Software_LocalMachine.csv'
 ```
 
-
+### Putting it all together
+```powershell
+Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*,
+    HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*,
+        HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*,
+            HKCU:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* | 
+            Select-Object DisplayName, DisplayVersion, Publisher, InstallDate, SystemComponent  | 
+                Where-Object SystemComponent -ne 1 |
+                    Sort-Object Publisher, DisplayName | 
+                        Format-Table -AutoSize
+```
 
 ## Others
 Script from
