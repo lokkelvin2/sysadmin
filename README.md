@@ -1,6 +1,9 @@
-# Get list of installed applications on windows
+# Installation
+- Download [here](https://github.com/lokkelvin2/sysadmin/archive/refs/tags/v1.zip) and unzip all files to a folder
+- Run `run.bat`
+- Output is saved to desktop
 
-## Using powershell to query Registry
+## Get list of installed applications on windows - Using powershell to query Registry
 **Note** 
 - `HKLM` is for local machine installations
 - `HKCU` is for current user installations
@@ -51,5 +54,3 @@ Script from
 ```powershell
 foreach ($UKey in 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*','HKLM:\SOFTWARE\Wow6432node\Microsoft\Windows\CurrentVersion\Uninstall\*','HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*','HKCU:\SOFTWARE\Wow6432node\Microsoft\Windows\CurrentVersion\Uninstall\*'){foreach ($Product in (Get-ItemProperty $UKey -ErrorAction SilentlyContinue)){if($Product.DisplayName -and $Product.SystemComponent -ne 1){$Product.DisplayName}}}
 ```
-
-https://gist.github.com/mark05e/e9ff8067211caa51ca4556b161b0f0a7
