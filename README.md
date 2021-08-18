@@ -1,9 +1,10 @@
-# Installation
+# Script to list installed applications in Windows
+## Installation
 - Download [here](https://github.com/lokkelvin2/sysadmin/archive/refs/tags/v1.zip) and unzip all files to a folder
 - Run `run.bat`
 - Output is saved to desktop
 
-## Get list of installed applications on windows - Using powershell to query Registry
+## Using powershell to query Registry
 **Note** 
 - `HKLM` is for local machine installations
 - `HKCU` is for current user installations
