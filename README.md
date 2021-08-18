@@ -9,6 +9,7 @@
 - `HKCU` is for current user installations
 - `Wow6432Node` is for 32bit apps running on 64bit windows
 - Portable apps should not write to registry and so will not show up in these lists
+- HKCU displays only 1 user. If there are multiple user accounts, rerun it for all users in HKEY_USERS.
 
 ### 32 bit windows
 ```powershell
@@ -53,4 +54,11 @@ Script from
 [#1603935](https://superuser.com/a/1603935) filters away the hidden system components
 ```powershell
 foreach ($UKey in 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*','HKLM:\SOFTWARE\Wow6432node\Microsoft\Windows\CurrentVersion\Uninstall\*','HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*','HKCU:\SOFTWARE\Wow6432node\Microsoft\Windows\CurrentVersion\Uninstall\*'){foreach ($Product in (Get-ItemProperty $UKey -ErrorAction SilentlyContinue)){if($Product.DisplayName -and $Product.SystemComponent -ne 1){$Product.DisplayName}}}
+```
+
+### Installed Apps from microsoft store
+```powershell
+Get-AppxPackage -AllUsers|
+    Select-Object Name, Version, Publisher|
+        Format-Table -AutoSize
 ```
