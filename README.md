@@ -1,3 +1,9 @@
+# Instructions
+- Download [here](https://github.com/lokkelvin2/sysadmin/archive/refs/tags/v2.zip)
+- Extract folder to target computer
+- run `run.bat`
+- Output csv is saved to desktop
+
 # Get list of installed applications on windows
 
 ## Using powershell to query Registry
