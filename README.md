@@ -1,8 +1,11 @@
-# Script to list installed applications in Windows
-## Installation
-- Download [here](https://github.com/lokkelvin2/sysadmin/archive/refs/tags/v1.zip) and unzip all files to a folder
-- Run `run.bat`
-- Output is saved to desktop
+# Instructions
+- Download [here](https://github.com/lokkelvin2/sysadmin/archive/refs/tags/v2.zip)
+- Extract folder to target computer
+- run `run.bat`
+- Output csv is saved to desktop
+
+# Get list of installed applications on windows
+
 
 ## Using powershell to query Registry
 **Note** 
@@ -11,6 +14,7 @@
 - `Wow6432Node` is for 32bit apps running on 64bit windows
 - Portable apps should not write to registry and so will not show up in these lists
 - HKCU displays only 1 user. If there are multiple user accounts, rerun it for all users in HKEY_USERS.
+
 
 ### 32 bit windows
 ```powershell
@@ -57,9 +61,13 @@ Script from
 foreach ($UKey in 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*','HKLM:\SOFTWARE\Wow6432node\Microsoft\Windows\CurrentVersion\Uninstall\*','HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*','HKCU:\SOFTWARE\Wow6432node\Microsoft\Windows\CurrentVersion\Uninstall\*'){foreach ($Product in (Get-ItemProperty $UKey -ErrorAction SilentlyContinue)){if($Product.DisplayName -and $Product.SystemComponent -ne 1){$Product.DisplayName}}}
 ```
 
+
 ### Installed Apps from microsoft store
 ```powershell
 Get-AppxPackage -AllUsers|
     Select-Object Name, Version, Publisher|
         Format-Table -AutoSize
 ```
+
+https://gist.github.com/mark05e/e9ff8067211caa51ca4556b161b0f0a7
+
