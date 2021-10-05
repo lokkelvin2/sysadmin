@@ -95,6 +95,7 @@ public class IndirectStrings
 Add-Type -TypeDefinition $CSharpSHLoadIndirectString -Language CSharp
 
 # Get a list of Appx packages
+$UWP_OUTPUT = @()
 $AppxPackages = $null
 $AppxIdentities = $null
 try{
@@ -115,74 +116,75 @@ catch{
 
 if ($AppxPackages)
 {
-$AppxSum = $AppxPackages.Count
+    $AppxSum = $AppxPackages.Count
 
-# Create an array to store Appx identities
-Class AppxIdentity {
-  [ValidateNotNullOrEmpty()][string]$Name
-  [string]$DisplayNameResolved
-  [string]$DisplayNameRaw
-  [string]$DisplayNameMan
-  [string]$PublisherDisplayNameMan
-  [string]$Architecture
-  [string]$Version
-}
-[AppxIdentity[]]$AppxIdentities = [AppxIdentity[]]::New($AppxSum)
+    # Create an array to store Appx identities
+    Class AppxIdentity {
+      [ValidateNotNullOrEmpty()][string]$Name
+      [string]$DisplayNameResolved
+      [string]$DisplayNameRaw
+      [string]$DisplayNameMan
+      [string]$PublisherDisplayNameMan
+      [string]$Architecture
+      [string]$Version
+    }
+    [AppxIdentity[]]$AppxIdentities = [AppxIdentity[]]::New($AppxSum)
 
-# Access the AppX repository in the Registry
-for ($i = 0; $i -lt $AppxSum; $i++) {
-  # These variables help make the code more compact
-  # AXN, AXF and AXI respectively mean AppX Name, AppX Fullname and AppX Identity
-  $AXN = $AppxPackages[$i].Name
-  $AXF = $AppxPackages[$i].PackageFullName
-  $AXI = New-Object -TypeName AppxIdentity
+    # Access the AppX repository in the Registry
+    for ($i = 0; $i -lt $AppxSum; $i++) {
+      # These variables help make the code more compact
+      # AXN, AXF and AXI respectively mean AppX Name, AppX Fullname and AppX Identity
+      $AXN = $AppxPackages[$i].Name
+      $AXF = $AppxPackages[$i].PackageFullName
+      $AXI = New-Object -TypeName AppxIdentity
 
-  # The first property is easy to acquire
-  $AXI.Name = $AXN
-  $AXI.DisplayNameMan = ($AppxPackages[$i]|Get-AppxPackageManifest).Package.Properties.DisplayName
-  $AXI.Architecture = $AppxPackages[$i].Architecture
-  $AXI.Version = $AppxPackages[$i].Version
-  $AXI.PublisherDisplayNameMan = ($AppxPackages[$i]|Get-AppxPackageManifest).Package.Properties.PublisherDisplayName
+      # The first property is easy to acquire
+      $AXI.Name = $AXN
+      $AXI.DisplayNameMan = ($AppxPackages[$i]|Get-AppxPackageManifest).Package.Properties.DisplayName
+      $AXI.Architecture = $AppxPackages[$i].Architecture
+      $AXI.Version = $AppxPackages[$i].Version
+      $AXI.PublisherDisplayNameMan = ($AppxPackages[$i]|Get-AppxPackageManifest).Package.Properties.PublisherDisplayName
 
-  # Leave publisher name empty if manifest file is missing this field
-  if ($AXI.PublisherDisplayNameMan -match '^ms-resource:') {
-    $AXI.PublisherDisplayNameMan = ''
-  }
+      # Leave publisher name empty if manifest file is missing this field
+      if ($AXI.PublisherDisplayNameMan -match '^ms-resource:') {
+        $AXI.PublisherDisplayNameMan = ''
+      }
 
-  #The display name is stored in the Registry
-  $AppxPath = "Registry::HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Packages\$AXF"
-  If (Test-Path $AppxPath) {
-    try {
-      $AXI.DisplayNameRaw = (Get-ItemProperty -Path $AppxPath -Name DisplayName).DisplayName
-      if ($AXI.DisplayNameRaw -match '^@') {
-        $AXI.DisplayNameResolved = [IndirectStrings]::GetIndirectString( $AXI.DisplayNameRaw )
+      #The display name is stored in the Registry
+      $AppxPath = "Registry::HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Packages\$AXF"
+      If (Test-Path $AppxPath) {
+        try {
+          $AXI.DisplayNameRaw = (Get-ItemProperty -Path $AppxPath -Name DisplayName).DisplayName
+          if ($AXI.DisplayNameRaw -match '^@') {
+            $AXI.DisplayNameResolved = [IndirectStrings]::GetIndirectString( $AXI.DisplayNameRaw )
         
-      } else {
-        $AXI.DisplayNameResolved = $AXI.DisplayNameRaw
-        if ($AXI.DisplayNameRaw -match '^ms-resource\:') {
-          Write-Verbose "$($AXN) has a bad display name."
-          $AXI.DisplayNameResolved = $AXN
+          } else {
+            $AXI.DisplayNameResolved = $AXI.DisplayNameRaw
+            if ($AXI.DisplayNameRaw -match '^ms-resource\:') {
+              Write-Verbose "$($AXN) has a bad display name."
+              $AXI.DisplayNameResolved = $AXN
+            }
+          }
+        } catch {
+          Write-Verbose "There are no display names associated with $($AXN)."
         }
       }
-    } catch {
-      Write-Verbose "There are no display names associated with $($AXN)."
-    }
-  }
-  # If there is not resolved Name, use Get-AppxPackage DisplayName
-  if (-Not $AXI.DisplayNameResolved) {
-    $AXI.DisplayNameResolved = $AXN
-    }
+      # If there is not resolved Name, use Get-AppxPackage DisplayName
+      if (-Not $AXI.DisplayNameResolved) {
+        $AXI.DisplayNameResolved = $AXN
+        }
 
-  #Hand over the info
-  $AppxIdentities[$i] = $AXI
-}
+      #Hand over the info
+      $AppxIdentities[$i] = $AXI
+    }
+    # Tidy up array
+    $UWP_OUTPUT += $AppxIdentities | 
+                            Select-Object @{Name='DisplayName';Expression={$_.DisplayNameResolved}}, @{Name='DisplayVersion';Expression={$_.Version}}, @{Name='Publisher';Expression={$_.PublisherDisplayNameMan}} `
+                            ,@{Name='UWP (Store/Metro)';Expression={1}}  |
+                            Sort-Object DisplayName
 }
 
-# Tidy up array
-$UWP_OUTPUT = $AppxIdentities | 
-                        Select-Object @{Name='DisplayName';Expression={$_.DisplayNameResolved}}, @{Name='DisplayVersion';Expression={$_.Version}}, @{Name='Publisher';Expression={$_.PublisherDisplayNameMan}} `
-                        ,@{Name='UWP (Store/Metro)';Expression={1}}  |
-                        Sort-Object DisplayName
+
 
 
 $OUTPUT = $OUTPUT_SYSTEM + $OUTPUT_USERS
