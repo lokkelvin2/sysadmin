@@ -1,3 +1,3 @@
 @echo off
-powershell.exe -executionpolicy bypass -file "%~dp0/mainv5.ps1"
-pause
+::powershell.exe -noprofile -NoExit -command "&{start-process powershell -ArgumentList '-NoExit -noprofile -file \"%~dp0\mainv6.ps1\"' -verb RunAs}"
+powershell.exe -noprofile -NoExit -command "&{start-process powershell -ArgumentList '-noprofile -file \"%~dp0\mainv6.ps1\"' -verb RunAs}"
