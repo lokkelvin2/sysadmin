@@ -222,7 +222,7 @@ if ($AppxPackages)
     $UWP_OUTPUT += $AppxIdentities | 
                     Select-Object @{Name='DisplayName';Expression={$_.DisplayNameResolved}}, @{Name='DisplayVersion';Expression={$_.Version}}, @{Name='Publisher';Expression={$_.PublisherDisplayNameMan}} `
                     ,@{Name='UWP (Store/Metro)';Expression={1}}  |
-                    Sort-Object DisplayName
+                    Sort-Object DisplayName, DisplayVersion -Unique
 
     # Append UWP list to programs list
     $OUTPUT += $UWP_OUTPUT
@@ -250,7 +250,7 @@ Write-Output "============== STATISTICS =============="
 Write-Output ""
 Write-Output "Found $(($OUTPUT_stats).Count) installed applications, of which $(($UWP_OUTPUT|measure).Count) are UWP applications"
 Write-Output "Breakdown of non-UWP apps:"
-($OUTPUT.Owner|group) | ForEach-Object{write-output "    $($_.Count) apps from $($_.Name)"}
+(($OUTPUT|Where-Object {$_.'UWP (Store/Metro)' -ne 1}).Owner|group) | ForEach-Object{write-output "    $($_.Count) apps from $($_.Name)"}
 Write-Output ""
 Write-Output "========================================"
 Write-Output "Saving output to $FPATH"
