@@ -63,11 +63,13 @@ foreach ($UKey in 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
 
 
 ### Installed Apps from microsoft store
+Script from [skycommand](https://github.com/skycommand/AdminScripts/blob/67701785cf74a43c2d74d4f2111f9191e8df244b/AppX/Inventory%20AppX%20Packages.ps1) returns a human readable DisplayName for the UWP apps. It uses `SHLoadIndirectString()` from [here](https://github.com/SamuelArnold/StarKill3r/blob/master/Star%20Killer/Star%20Killer/bin/Debug/Scripts/SANS-SEC505-master/scripts/Day1-PowerShell/Expand-IndirectString.ps1).
 ```powershell
 Get-AppxPackage -AllUsers|
     Select-Object Name, Version, Publisher|
         Format-Table -AutoSize
 ```
+
 
 https://gist.github.com/mark05e/e9ff8067211caa51ca4556b161b0f0a7
 
