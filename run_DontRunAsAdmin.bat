@@ -8,5 +8,5 @@ for /f %%i in ('whoami') do set NAMEin=%%i
 
 SET EntryScriptPath=%~dp0StartMain.ps1
 
-powershell.exe -noprofile -noexit -command "&{start-process powershell -ArgumentList '-executionpolicy bypass -noprofile -file \"%EntryScriptPath%\" -filePath %~dp0 -currentUser %NAMEin% -userProfile %userprofile%' -verb RunAs}"
+powershell.exe -noprofile -noexit -command "&{start-process powershell -ArgumentList '-executionpolicy bypass -noprofile -file \"%EntryScriptPath%\" -filePath %~dp0 -currentUser \"%NAMEin%\" -userProfile \"%userprofile%\"' -verb RunAs}"
 exit
